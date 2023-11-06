@@ -6,5 +6,5 @@ class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
         field = ['title', 'body']
-        fields = ['title', 'body']
+        fields = ['title', 'body', 'id']
 
