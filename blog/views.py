@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view
 
 
 @api_view(['GET', 'POST'])
-def get_blogs(req):
+def blog_list(req):
     if req.method == 'GET':
         blogs = Blog.objects.all()
         serializer = BlogSerializer(blogs, many=True)
@@ -19,4 +19,26 @@ def get_blogs(req):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return HttpResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def individual_blog(req, id):
+    try:
+        blog = Blog.objects.get(pk=id)
+    except Blog.DoesNotExist as e:
+        return Response({'message': 'no blog with that id exists'}, status=status.HTTP_404_NOT_FOUND)
+
+    if req.method == 'GET':
+        serializer = BlogSerializer(blog)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    elif req.method == 'PUT':
+        serializer = BlogSerializer(blog, data=req.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return HttpResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif req.method == 'DELETE':
+        blog.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
