@@ -15,6 +15,7 @@ def blog_list(req):
     elif req.method == 'POST':
         serializer = BlogSerializer(data=req.data)
         if serializer.is_valid():
+            return JsonResponse({'serializerData': serializer.data, 'reqData': req.data }, safe=False)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
