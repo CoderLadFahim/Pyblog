@@ -43,7 +43,6 @@ def individual_blog(req, id):
         blog.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
 @api_view(['GET'])
 def get_author(req, id):
     try:
@@ -54,3 +53,19 @@ def get_author(req, id):
     author_serialized = AuthorSerializer(blog.author_id)
 
     return JsonResponse(author_serialized.data, safe=False)
+
+@api_view(['GET'])
+def get_author_list(req):
+    authors = Author.objects.all()
+    author_serialized = AuthorSerializer(authors, many=True)
+    return JsonResponse(author_serialized.data, safe=False)
+
+@api_view(['GET'])
+def get_blogs_by_author(req, id):
+    try:
+        author_in_question = Author.objects.get(pk=id)
+    except Author.DoesNotExist as e:
+        return Response({'message': 'no author with that id exists'}, status=status.HTTP_404_NOT_FOUND)
+
+    blogs_serialized = BlogSerializer(author_in_question.blogs, many=True)
+    return JsonResponse(blogs_serialized.data, safe=False)
