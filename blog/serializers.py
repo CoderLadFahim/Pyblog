@@ -1,14 +1,15 @@
 from rest_framework import serializers
 
-from .models import Blog
+from .models import Author, Blog
+
 
 class BlogSerializer(serializers.ModelSerializer):
-    author_id = serializers.SerializerMethodField()
-
     class Meta:
         model = Blog
-        fields = ['title', 'body', 'id', 'author_id']
+        fields = ['title', 'body', 'author_id']
 
-    def get_author_id(self, obj):
-        return obj.author_id
 
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = ['name', 'age']

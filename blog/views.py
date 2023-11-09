@@ -1,9 +1,11 @@
 from django.http import JsonResponse, HttpResponse
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Blog
-from .serializers import BlogSerializer
-from rest_framework.decorators import api_view 
+from .models import Author, Blog
+from .serializers import AuthorSerializer, BlogSerializer
+from rest_framework.decorators import api_view
+
+from blog import serializers 
 
 
 @api_view(['GET', 'POST'])
@@ -15,7 +17,6 @@ def blog_list(req):
     elif req.method == 'POST':
         serializer = BlogSerializer(data=req.data)
         if serializer.is_valid():
-            return JsonResponse({'serializerData': serializer.data, 'reqData': req.data }, safe=False)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -43,3 +44,13 @@ def individual_blog(req, id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@api_view(['GET'])
+def get_author(req, id):
+    try:
+        blog = Blog.objects.get(pk=id)
+    except Blog.DoesNotExist as e:
+        return Response({'message': 'no blog with that id exists'}, status=status.HTTP_404_NOT_FOUND)
+
+    author_serialized = AuthorSerializer(blog.author_id)
+
+    return JsonResponse(author_serialized.data, safe=False)
