@@ -1,10 +1,15 @@
 from rest_framework import serializers
 
-from .models import Blog
+from .models import Author, Blog
+
 
 class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
-        field = ['title', 'body']
-        fields = ['title', 'body', 'id']
+        fields = ['title', 'body', 'author_id']
 
+
+class AuthorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = ['name', 'age']

@@ -22,4 +22,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('blogs/', views.blog_list),
     path('blogs/<int:id>', views.individual_blog),
+    path('blogs/<int:id>/author', views.get_author),
+    path('authors/', views.get_author_list),
+    path('author/<int:id>/blogs', views.get_blogs_by_author),
 ]
