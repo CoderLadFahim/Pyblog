@@ -23,6 +23,9 @@ urlpatterns = [
     path('blogs/', views.blog_list),
     path('blogs/<int:id>', views.individual_blog),
     path('blogs/<int:id>/author', views.get_author),
+    path('blogs/<int:id>/comments', views.comment_list),
+
+    # Subject to change
     path('authors/', views.get_author_list),
     path('author/<int:id>/blogs', views.get_blogs_by_author),
 ]

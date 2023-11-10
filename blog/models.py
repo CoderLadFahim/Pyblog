@@ -13,5 +13,13 @@ class Blog(models.Model):
     author_id = models.ForeignKey(Author, on_delete=models.CASCADE, null=True, related_name='blogs')
 
     def __str__(self):
-        return f'{self.author_id} - {self.title}: {self.body}'
+        return f'{self.id}: {self.author_id} - {self.title}: {self.body}'
 
+
+class Comment(models.Model):
+    body = models.CharField(max_length=155)
+    author_id = models.ForeignKey(Author, on_delete=models.CASCADE, null=False, related_name='author')
+    blog_id = models.ForeignKey(Blog, on_delete=models.CASCADE, null=False, related_name='comments')
+
+    def __str__(self):
+        return f'{self.author_id} - {self.blog_id}: {self.body}'

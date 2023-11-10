@@ -1,8 +1,8 @@
 from django.http import JsonResponse, HttpResponse
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Author, Blog
-from .serializers import AuthorSerializer, BlogSerializer
+from .models import Author, Blog, Comment
+from .serializers import AuthorSerializer, BlogSerializer, CommentSerializer
 from rest_framework.decorators import api_view
 
 from blog import serializers 
@@ -42,6 +42,19 @@ def individual_blog(req, id):
     elif req.method == 'DELETE':
         blog.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['GET', 'POST'])
+def comment_list(req, id):
+    try:
+        blog = Blog.objects.get(pk=id) 
+    except Blog.DoesNotExist as e:
+        return Response({'message': 'no blog with that id exists'}, status=status.HTTP_404_NOT_FOUND)
+
+    if req.method == 'GET':
+        comments = blog.comments
+        comments_serialized = CommentSerializer(comments, many=True)
+        return JsonResponse(comments_serialized.data, safe=False)
+    
 
 @api_view(['GET'])
 def get_author(req, id):
