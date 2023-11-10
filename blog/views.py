@@ -54,7 +54,44 @@ def comment_list(req, id):
         comments = blog.comments
         comments_serialized = CommentSerializer(comments, many=True)
         return JsonResponse(comments_serialized.data, safe=False)
-    
+
+    if req.method == 'POST':
+        comment_serializer = CommentSerializer(data=req.data)
+        if comment_serializer.is_valid():
+            comment_serializer.save()
+            return Response(comment_serializer.data, status=status.HTTP_201_CREATED)
+        return HttpResponse(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET', 'PUT', 'DELETE'])
+def individual_comment(req, id):
+    try:
+        comment = Comment.objects.get(pk=id)
+    except Comment.DoesNotExist as e:
+        return Response({'message': 'no comment with that id exists'}, status=status.HTTP_404_NOT_FOUND)
+
+    comment_serialized = CommentSerializer(comment)
+
+    if req.method == 'GET':
+        return JsonResponse(comment_serialized.data, safe=False)
+
+    if req.method == 'PUT':
+        comment_serialized = CommentSerializer(comment, data=req.data)
+        if comment_serialized.is_valid():
+            comment_serialized.save()
+            return Response(comment_serialized.data, status=status.HTTP_201_CREATED)
+        return HttpResponse(comment_serialized.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if req.method == 'DELETE':
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+
+
+# SUBJECT TO CHANGE
 
 @api_view(['GET'])
 def get_author(req, id):
