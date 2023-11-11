@@ -56,7 +56,12 @@ def comment_list(req, id):
         return JsonResponse(comments_serialized.data, safe=False)
 
     if req.method == 'POST':
-        comment_serializer = CommentSerializer(data=req.data)
+        new_comment = {
+            'body': req.data.get('body'),
+            # 'author_id': req.data.get('author_id'),
+            'blog_id': id,
+        }
+        comment_serializer = CommentSerializer(data=new_comment)
         if comment_serializer.is_valid():
             comment_serializer.save()
             return Response(comment_serializer.data, status=status.HTTP_201_CREATED)
