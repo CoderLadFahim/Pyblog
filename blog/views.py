@@ -13,7 +13,7 @@ def blog_list(req):
     if req.method == 'GET':
         blogs = Blog.objects.all()
         serializer = BlogSerializer(blogs, many=True)
-        return JsonResponse({'blogs': serializer.data }, safe=False)
+        return JsonResponse(serializer.data, safe=False)
     elif req.method == 'POST':
         serializer = BlogSerializer(data=req.data)
         if serializer.is_valid():
