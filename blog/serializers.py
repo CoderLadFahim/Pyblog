@@ -9,6 +9,15 @@ class BlogSerializer(serializers.ModelSerializer):
         # fields = ['title', 'body', 'author_id', 'id']
         fields = ['title', 'body', 'id']
 
+    def create(self, validated_data):
+        return Blog.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title) 
+        instance.body = validated_data.get('body', instance.body) 
+        instance.save()
+        return instance
+
 
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:

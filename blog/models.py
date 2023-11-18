@@ -9,6 +9,9 @@ class Blog(models.Model):
     body = models.CharField(max_length=255)
     # author_id = models.ForeignKey(Author, on_delete=models.CASCADE, null=True, related_name='blogs')
 
+    def __str__(self):
+        return f'{self.id}: {self.title}'
+
 class Comment(models.Model):
     body = models.CharField(max_length=155)
     # author_id = models.ForeignKey(Author, on_delete=models.CASCADE, null=False, related_name='author')
