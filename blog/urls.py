@@ -17,11 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from blog import views
+from .views import BlogView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('blogs/', views.blog_list),
-    path('blogs/<int:id>', views.individual_blog),
+    path('blogs/', BlogView.as_view(), name="blog_list"),
+    path('blogs/<int:id>', BlogView.as_view(), name="individual_blog"),
     path('blogs/<int:id>/author', views.get_author),
     path('blogs/<int:id>/comments', views.comment_list),
 

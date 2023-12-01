@@ -1,20 +1,33 @@
+from django.contrib.admin.options import method_decorator
 from django.http import JsonResponse, HttpResponse
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Author, Blog, Comment
 from .serializers import AuthorSerializer, BlogSerializer, CommentSerializer
 from rest_framework.decorators import api_view
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from rest_framework.views import APIView
 
-from blog import serializers 
+from blog import serializers
 
+class BlogView(APIView):
+    def get(self, req, *args, **kwargs):
+        blog_id = kwargs.get('id');
+        if not blog_id:
+            blogs = Blog.objects.all()
+            serializer = BlogSerializer(blogs, many=True)
+            return JsonResponse(serializer.data, safe=False)
+        try:
+            blog = Blog.objects.get(pk=blog_id)
+        except Blog.DoesNotExist as e:
+            return Response({'message': 'no blog with that id exists'}, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['GET', 'POST'])
-def blog_list(req):
-    if req.method == 'GET':
-        blogs = Blog.objects.all()
-        serializer = BlogSerializer(blogs, many=True)
-        return JsonResponse(serializer.data, safe=False)
-    elif req.method == 'POST':
+        serializer = BlogSerializer(blog)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @method_decorator(csrf_exempt)
+    def post(self, req, *args, **kwargs):
         serializer = BlogSerializer(data=req.data)
         if serializer.is_valid():
             serializer.save()
@@ -22,31 +35,32 @@ def blog_list(req):
         else:
             return HttpResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def individual_blog(req, id):
-    try:
-        blog = Blog.objects.get(pk=id)
-    except Blog.DoesNotExist as e:
-        return Response({'message': 'no blog with that id exists'}, status=status.HTTP_404_NOT_FOUND)
+    def put(self, req, *args, **kwargs):
+        blog_id = kwargs.get('id');
+        try:
+            blog = Blog.objects.get(pk=blog_id)
+        except Blog.DoesNotExist as e:
+            return Response({'message': 'no blog with that id exists'}, status=status.HTTP_404_NOT_FOUND)
 
-    if req.method == 'GET':
-        serializer = BlogSerializer(blog)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    elif req.method == 'PUT':
         serializer = BlogSerializer(blog, data=req.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return HttpResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif req.method == 'DELETE':
+    def delete(self, req, *args, **kwargs):
+        blog_id = kwargs.get('id');
+        try:
+            blog = Blog.objects.get(pk=blog_id)
+        except Blog.DoesNotExist as e:
+            return Response({'message': 'no blog with that id exists'}, status=status.HTTP_404_NOT_FOUND)
         blog.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'message': 'blog deleted'}, status=status.HTTP_204_NO_CONTENT)
 
 @api_view(['GET', 'POST'])
 def comment_list(req, id):
     try:
-        blog = Blog.objects.get(pk=id) 
+        blog = Blog.objects.get(pk=id)
     except Blog.DoesNotExist as e:
         return Response({'message': 'no blog with that id exists'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -66,6 +80,7 @@ def comment_list(req, id):
             comment_serializer.save()
             return Response(comment_serializer.data, status=status.HTTP_201_CREATED)
         return HttpResponse(comment_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def individual_comment(req, id):
@@ -91,11 +106,6 @@ def individual_comment(req, id):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-
-
-
-
-
 # SUBJECT TO CHANGE
 
 @api_view(['GET'])
@@ -109,11 +119,13 @@ def get_author(req, id):
 
     return JsonResponse(author_serialized.data, safe=False)
 
+
 @api_view(['GET'])
 def get_author_list(req):
     authors = Author.objects.all()
     author_serialized = AuthorSerializer(authors, many=True)
     return JsonResponse(author_serialized.data, safe=False)
+
 
 @api_view(['GET'])
 def get_blogs_by_author(req, id):
@@ -124,3 +136,5 @@ def get_blogs_by_author(req, id):
 
     blogs_serialized = BlogSerializer(author_in_question.blogs, many=True)
     return JsonResponse(blogs_serialized.data, safe=False)
+
+
